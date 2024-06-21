@@ -23,10 +23,10 @@ class Account:
         self.initial_balance = balance
 
     def get_balance(self):
-        return self.balance
+        return round(self.balance, 2)
     
     def get_initial_balance(self):
-        return self.initial_balance
+        return round(self.initial_balance, 2)
     
     def get_shares(self, stock):
         return self.soxs_shares if stock == "SOXS" else self.soxl_shares
@@ -39,10 +39,10 @@ class Account:
     
     def calc_account_return(self):
         # Calculate the account return percentage
-        return ((self.get_portfolio_value() - self.initial_balance) / self.initial_balance) * 100
+        return round(((self.get_portfolio_value() - self.initial_balance) / self.initial_balance) * 100, 2)
 
     def buy_stock(self, stock, no_of_shares, price):
-        spent = price * no_of_shares
+        spent = int(price) * int(no_of_shares)
 
         print(f"Buying {no_of_shares} shares of {stock} at ${price} each for a total ${spent}.\nAccount balance before: ${self.balance}")
         
@@ -53,18 +53,21 @@ class Account:
             self.soxl_shares += no_of_shares
             self.running_soxl_spent += spent
         self.balance -= spent
-
-        print(f"Account balance after: ${self.balance}")
+        round(self.balance, 2)
+        print(f"Account balance after: ${round(self.balance, 2)}")
     
     def sell_stock(self, stock, no_of_shares, price):
-        print(f"Selling {no_of_shares} shares of {stock} at ${price} each.\nAccount balance before: ${self.balance}")
+        spent = round(price * no_of_shares, 2)
+
+        print(f"Selling {no_of_shares} shares of {stock} at ${price} each for a total ${spent}.\nAccount balance before: ${self.balance}")
         if stock == "SOXS":
             self.soxs_shares -= no_of_shares
-            self.running_soxs_spent -= price * no_of_shares
+            self.running_soxs_spent -= spent
         elif stock == "SOXL":
             self.soxl_shares -= no_of_shares
-            self.running_soxl_spent -= price * no_of_shares
-        self.balance += price * no_of_shares
+            self.running_soxl_spent -= spent
+        self.balance += spent
+        round(self.balance, 2)
         print(f"Account balance after: ${self.balance}")
 
     def print_account(self):
@@ -72,7 +75,7 @@ class Account:
         print(f"\tAccount balance: ${self.balance}")
         print(f"\tSOXS shares: {self.soxs_shares}")
         print(f"\tSOXL shares: {self.soxl_shares}") 
-        print(f"\tTotal account value: ${self.balance + (self.soxs_shares * close_soxs_values[-1]) + (self.soxl_shares * close_soxl_values[-1])}")
+        print(f"\tTotal account value: ${round(self.balance, 2) + int((self.soxs_shares * close_soxs_values[-1])) + int((self.soxl_shares * close_soxl_values[-1]))}")
         print(f"\t-------------------------------------")
 
 # Writes a row to the output CSV file
@@ -98,18 +101,18 @@ def write_final_summary_to_csv(account):
     print("\nPortfolio Lifetime Summary:")
 
     # Calculate the total gain/loss and total account return
-    total_gain_loss = account.get_portfolio_value() - account.get_initial_balance()
+    total_gain_loss = round(account.get_portfolio_value() - account.get_initial_balance(), 2)
     total_account_return = account.calc_account_return()
 
     # Write the summary data to the CSV file (also print to console)
-    write_data_to_csv([total_gain_loss,total_account_return,account.get_balance(), account.get_portfolio_value()])
-    print(f"Total Gain/Loss = {total_gain_loss}, Total % Return = {total_account_return}, Final Balance = {account.get_balance()}, Final Portfolio Value = {account.get_portfolio_value()}")
+    write_data_to_csv([total_gain_loss,total_account_return,account.get_balance(), round(account.get_portfolio_value(), 2)])
+    print(f"Total Gain/Loss = ${total_gain_loss}, Total % Return = {total_account_return}%, Final Balance = ${account.get_balance()}, Final Portfolio Value = ${account.get_portfolio_value()}")
 
 def write_trade_to_csv(trade, account, soxs, soxl):
     # Get the trade data
     symbol = trade[1]
     buy_sell = trade[0]
-    no_of_shares = trade[2]
+    no_of_shares = int(trade[2])
 
     if symbol == "SOXS":
         date = get_date(soxs)
@@ -123,7 +126,7 @@ def write_trade_to_csv(trade, account, soxs, soxl):
     gain_loss = calc_gain_loss(close_value, (account.get_running_stock_balance(symbol)/no_of_shares)) if buy_sell == "Sell" else 0
 
     # Write the trade data to CSV file
-    write_data_to_csv([date, symbol, buy_sell, no_of_shares, close_value, gain_loss, todays_return, account.get_balance()])
+    write_data_to_csv([date, symbol, buy_sell, no_of_shares, round(close_value, 2), gain_loss, todays_return, account.get_balance()])
 
 def open_JSON_files():
     try:
@@ -204,7 +207,7 @@ def calc_sma(symbol, data, period):
 
 def calc_gain_loss(price, purchase_price):
     # Calculate the gain/loss percentage on a sell
-    return ((price - purchase_price) / purchase_price) * 100
+    return round(((price - purchase_price) / purchase_price) * 100, 2)
 
 def EvaluateSMA(soxs_sma, soxl_sma, account):
     # Get the balance and holdings
@@ -343,7 +346,7 @@ def main():
     l_period = 200
 
     # Ask for user input
-    ui.get_user_input()
+    # ui.get_user_input()
 
     # Start the trading system
     start_trading_system(account, s_period, l_period)
