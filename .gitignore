@@ -1,0 +1,9 @@
+soxl_historical_data.json
+trades.csv
+.vscode/launch.json
+__pycache__/data_access_interface.cpython-312.pyc
+__pycache__/data_interface.cpython-312.pyc
+__pycache__/database.cpython-312.pyc
+__pycache__/trading_system.cpython-312.pyc
+__pycache__/ui.cpython-312.pyc
+soxs_historical_data.json
