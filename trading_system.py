@@ -6,6 +6,8 @@ from datetime import datetime
 import csv
 import os
 
+import database as db
+import data_access_interface as dai
 
 close_soxs_values = []
 close_soxl_values = []
@@ -128,49 +130,6 @@ def write_trade_to_csv(trade, account, soxs, soxl):
     # Write the trade data to CSV file
     write_data_to_csv([date, symbol, buy_sell, no_of_shares, round(close_value, 2), gain_loss, todays_return, account.get_balance()])
 
-def open_JSON_files():
-    try:
-        fs = open('soxs_historical_data.json')
-        fl = open('soxl_historical_data.json')
-        return fs, fl
-    except Exception as e:
-        print(f"Error opening JSON files: {e}")
-        return None, None
-    
-def close_JSON_files(fs, fl):
-    try:
-        fs.close()
-        fl.close()
-    except Exception as e:
-        print(f"Error closing JSON files: {e}")
-
-def download_data():
-    # Set the tickers for the SOXS and SOXL stocks
-    soxs_ticker = yf.Ticker('SOXS') 
-    soxl_ticker = yf.Ticker('SOXL')
-
-    # Download historical data
-    soxs_hist = soxs_ticker.history(start="2021-01-01", end=None, interval="1d", actions = False)
-    soxl_hist = soxl_ticker.history(start="2021-01-01", end=None, interval="1d", actions = False)
-
-    # Save historical data to JSON files
-    soxs_data_dict = {str(date): data for date, data in soxs_hist.to_dict(orient="index").items()}
-    soxl_data_dict = {str(date): data for date, data in soxl_hist.to_dict(orient="index").items()}
-
-    # Set the file names for the JSON files
-    soxs_file_name = "soxs_historical_data.json"
-    soxl_file_name = "soxl_historical_data.json"
-
-    # Save the data to JSON files
-    with open(soxs_file_name, "w") as json_file:
-        json.dump(soxs_data_dict, json_file, indent=4)
-
-    with open(soxl_file_name, "w") as json_file:
-        json.dump(soxl_data_dict, json_file, indent=4)
-
-    print(f"Historical data for SOXS has been saved to {soxs_file_name}")
-    print(f"Historical data for SOXL has been saved to {soxl_file_name}")
-
 def get_date(data):
     # Return the date of the stock information
     return data[0]
@@ -216,8 +175,6 @@ def EvaluateSMA(soxs_sma, soxl_sma, account):
     no_soxl_shares = account.get_shares("SOXL")
 
     # Rename close values for readability
-    # prev_soxs_close = close_soxs_values[-2]
-    # prev_soxl_close = close_soxl_values[-2]
     soxs_close = close_soxs_values[-1]
     soxl_close = close_soxl_values[-1]
 
@@ -263,39 +220,16 @@ def execute_trades(trade, account):
     no_of_shares = trade[2]
     price = close_soxs_values[-1] if stock == "SOXS" else close_soxl_values[-1]
 
-    # # Print the account information
-    # print("\nAccount Information before trade:")
-    # account.print_account()
-
     # Execute the trade
     if trade_type == "Buy":
         account.buy_stock(stock, no_of_shares, price)
     elif trade_type == "Sell":
         account.sell_stock(stock, no_of_shares, price)
 
-    # # Print the account information
-    # print("\nAccount Information after trade:")
-    # account.print_account()
-
-def load_data():
-    try:
-        with open('soxs_historical_data.json') as fs, open('soxl_historical_data.json') as fl:
-            soxs_data = json.load(fs)
-            soxl_data = json.load(fl)
-        return soxs_data, soxl_data
-    except Exception as e:
-        print(f"Error loading data: {e}")
-        return None, None
-
-
-
-
-def start_trading_system(account, s_period, l_period):
-    # Open JSON files
-    fs, fl = open_JSON_files()
+def start_trading_system(account, s_period, l_period, data_access):
 
     # Read JSON files
-    soxs_data, soxl_data = load_data()
+    soxs_data, soxl_data = data_access.load_data()
 
     # Initialize the CSV file
     initialize_csv_file()
@@ -331,12 +265,15 @@ def start_trading_system(account, s_period, l_period):
     # Write final summary to CSV
     write_final_summary_to_csv(account)
 
-    # Close JSON files
-    close_JSON_files(fs, fl)
-
 def main():
-    # Download historical data
-    download_data()
+    # Create database object
+    database = db.DataBase()
+
+    # Create data access interface object
+    data_access = dai.DataAccessInterface(database)
+
+    # Download data
+    data_access.download_data()
 
     # Create account for investor, using default 100,000 starting balance
     account = Account()
@@ -349,7 +286,7 @@ def main():
     # ui.get_user_input()
 
     # Start the trading system
-    start_trading_system(account, s_period, l_period)
+    start_trading_system(account, s_period, l_period, data_access)
 
     
 if __name__ == "__main__":
