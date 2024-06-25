@@ -1,9 +1,7 @@
 import unittest
 import os
 import trading_system as ts
-import data_access_interface as dai
 from trading_system import Account
-from database import DataBase
 
 class TestAccount(unittest.TestCase):
     def test_init(self):
@@ -23,11 +21,6 @@ class TestAccount(unittest.TestCase):
         self.assertEqual(account.balance, 99500)
 
 class TestTradingSystem(unittest.TestCase):
-    # def test_download_data(self):
-    #     ts.download_data()
-    #     self.assertTrue(os.path.exists("soxs_historical_data.json"))
-    #     self.assertTrue(os.path.exists("soxl_historical_data.json"))
-
     def test_initiazlize_csv_file(self):
         ts.initialize_csv_file()
         self.assertTrue(os.path.exists("trades.csv"))
