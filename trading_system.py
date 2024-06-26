@@ -80,6 +80,38 @@ class Account:
         print(f"\tTotal account value: ${round(self.balance, 2) + int((self.soxs_shares * close_soxs_values[-1])) + int((self.soxl_shares * close_soxl_values[-1]))}")
         print(f"\t-------------------------------------")
 
+# Account interface class
+class AccountInterface(Account):    
+    def __init__(self, account):
+        self.account = account
+
+    def get_balance(self):
+        return self.account.get_balance()
+
+    def get_initial_balance(self):
+        return self.account.get_initial_balance()
+
+    def get_shares(self, stock):
+        return self.account.get_shares(stock)
+
+    def get_running_stock_balance(self, stock):
+        return self.account.get_running_stock_balance(stock)
+
+    def get_portfolio_value(self):
+        return self.account.get_portfolio_value()
+
+    def calc_account_return(self):
+        return self.account.calc_account_return()
+
+    def buy_stock(self, stock, no_of_shares, price):
+        self.account.buy_stock(stock, no_of_shares, price)
+
+    def sell_stock(self, stock, no_of_shares, price):
+        self.account.sell_stock(stock, no_of_shares, price)
+
+    def print_account(self):
+        self.account.print_account()
+
 # Writes a row to the output CSV file
 # Columns: Date, Stock, Trade, No. of Shares, Price, Gain/Loss, Balance
 def write_data_to_csv(data):
@@ -278,6 +310,9 @@ def main():
     # Create account for investor, using default 100,000 starting balance
     account = Account()
 
+    # Create account interface object
+    account_interface = AccountInterface(account)
+
     # Set the short and long periods
     s_period = 50
     l_period = 200
@@ -286,7 +321,7 @@ def main():
     # ui.get_user_input()
 
     # Start the trading system
-    start_trading_system(account, s_period, l_period, data_access)
+    start_trading_system(account_interface, s_period, l_period, data_access)
 
     
 if __name__ == "__main__":

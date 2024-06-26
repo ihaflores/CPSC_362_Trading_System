@@ -1,8 +1,6 @@
 import database as db
 
 class DataAccessInterface(db.DataBase):
-    database = None
-
     def __init__(self, database):
         self.database = database
 
