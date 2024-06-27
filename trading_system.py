@@ -7,7 +7,6 @@ import csv
 import os
 
 import database as db
-import data_access_interface as dai
 
 close_soxs_values = []
 close_soxl_values = []
@@ -302,7 +301,7 @@ def main():
     database = db.DataBase()
 
     # Create data access interface object
-    data_access = dai.DataAccessInterface(database)
+    data_access = db.DataAccessAdapter(database)
 
     # Download data
     data_access.download_data()

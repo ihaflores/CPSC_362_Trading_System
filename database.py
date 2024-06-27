@@ -1,5 +1,22 @@
 import json
 import yfinance as yf
+
+class Target:
+    def download_data(self):
+        pass
+    def load_data(self):
+        pass    
+
+class DataAccessAdapter(Target):
+    def __init__(self, database):
+        self.database = database
+
+    def download_data(self):
+        self.database.download_data()
+
+    def load_data(self):
+        return self.database.load_data()
+
 class DataBase:
 
     # Stock data
