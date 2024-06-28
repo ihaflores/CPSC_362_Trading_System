@@ -1,12 +1,5 @@
-import yfinance as yf
-import json
-import ui
-import matplotlib.pyplot as plt
-from datetime import datetime
 import csv
 import os
-
-import database as db
 
 close_soxs_values = []
 close_soxl_values = []
@@ -295,33 +288,3 @@ def start_trading_system(account, s_period, l_period, data_access):
 
     # Write final summary to CSV
     write_final_summary_to_csv(account)
-
-def main():
-    # Create database object
-    database = db.DataBase()
-
-    # Create data access interface object
-    data_access = db.DataAccessAdapter(database)
-
-    # Download data
-    data_access.download_data()
-
-    # Create account for investor, using default 100,000 starting balance
-    account = Account()
-
-    # Create account interface object
-    account_interface = AccountInterface(account)
-
-    # Set the short and long periods
-    s_period = 50
-    l_period = 200
-
-    # Ask for user input
-    # ui.get_user_input()
-
-    # Start the trading system
-    start_trading_system(account_interface, s_period, l_period, data_access)
-
-    
-if __name__ == "__main__":
-    main()
