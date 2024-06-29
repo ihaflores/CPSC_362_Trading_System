@@ -353,4 +353,50 @@ def main():
 
     
 if __name__ == "__main__":
-    main()
+    date_range = None  # Initialize date_range variable
+    
+    while True:
+        print("1. Download Data")
+        print("2. Input Date Range" )
+        print("3. Run Trading System")
+        print("4. Draw Graph Based on Date Range")
+        print("5. Print Account Information")
+        print("6. Exit")
+        
+        choice = input("Enter your choice: ")
+        
+        # Option 1 to download data
+        if choice == "1":
+            download_data()
+        
+        # Option 2 ask user input for date range
+        elif choice == "2":
+            start_date, end_date = get_date_range_from_user()
+            if start_date and end_date:
+                date_range = (start_date, end_date)
+                print(f"Date range set from {start_date} to {end_date}.")
+        
+        # Option 3 run trading system
+        elif choice == "3":
+            main()
+        
+        # Option 4 draw graph
+        elif choice == "4":
+            if date_range:
+                plot_graph(date_range)
+            else: # Make user input date range before drawing graph
+                print("Please set a date range first (Option 3).")
+        
+        # Option 5 print account information
+        # Might remove this one later
+        elif choice == "5":
+            if 'date_range' in locals():
+                main()  # Call main function to print account information
+            else:
+                print("Please set a date range first (Option 3).")
+        # Exit menu and terminate execution
+        elif choice == "6":
+            break
+        
+        else:
+            print("Invalid choice. Please try again.")
