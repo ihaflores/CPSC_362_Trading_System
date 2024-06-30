@@ -355,26 +355,23 @@ def main():
 if __name__ == "__main__":
     while True:
         print("1. Download Data")
-        print("2. Input Date Range")
-        print("3. Run Trading System")
-        print("4. Draw Graph Based on Date Range")
-        print("5. Print Account Information")
-        print("6. Exit")
+        print("2. Run Trading System")
+        print("3. Input Date & Draw Graph")
+        print("4. Print Account Information")
+        print("5. Exit")
 
         choice = input("Enter your choice: ")
 
         if choice == "1":
             download_data()
         elif choice == "2":
-            ui.get_user_input
-        elif choice == "3":
             main()
-        elif choice == "4":
+        elif choice == "3":
             ui.main()  # Call ui.py function to display the graph
-        elif choice == "5":
+        elif choice == "4":
             # Account info display logic here
             pass
-        elif choice == "6":
+        elif choice == "5":
             break
         else:
             print("Invalid choice. Please try again.")
