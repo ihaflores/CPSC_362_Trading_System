@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 from datetime import datetime
 import csv
 import os
+from database import DataBase, DataAccessAdapter
 
 
 close_soxs_values = []
@@ -145,31 +146,10 @@ def close_JSON_files(fs, fl):
         print(f"Error closing JSON files: {e}")
 
 def download_data():
-    # Set the tickers for the SOXS and SOXL stocks
-    soxs_ticker = yf.Ticker('SOXS') 
-    soxl_ticker = yf.Ticker('SOXL')
-
-    # Download historical data
-    soxs_hist = soxs_ticker.history(start="2021-01-01", end=None, interval="1d", actions = False)
-    soxl_hist = soxl_ticker.history(start="2021-01-01", end=None, interval="1d", actions = False)
-
-    # Save historical data to JSON files
-    soxs_data_dict = {str(date): data for date, data in soxs_hist.to_dict(orient="index").items()}
-    soxl_data_dict = {str(date): data for date, data in soxl_hist.to_dict(orient="index").items()}
-
-    # Set the file names for the JSON files
-    soxs_file_name = "soxs_historical_data.json"
-    soxl_file_name = "soxl_historical_data.json"
-
-    # Save the data to JSON files
-    with open(soxs_file_name, "w") as json_file:
-        json.dump(soxs_data_dict, json_file, indent=4)
-
-    with open(soxl_file_name, "w") as json_file:
-        json.dump(soxl_data_dict, json_file, indent=4)
-
-    print(f"Historical data for SOXS has been saved to {soxs_file_name}")
-    print(f"Historical data for SOXL has been saved to {soxl_file_name}")
+    # Create an instance of DataBase and DataAccessAdapter
+    database = DataBase()
+    adapter = DataAccessAdapter(database)
+    adapter.download_data()
 
 def get_date(data):
     # Return the date of the stock information
@@ -278,15 +258,10 @@ def execute_trades(trade, account):
     # account.print_account()
 
 def load_data():
-    try:
-        with open('soxs_historical_data.json') as fs, open('soxl_historical_data.json') as fl:
-            soxs_data = json.load(fs)
-            soxl_data = json.load(fl)
-        return soxs_data, soxl_data
-    except Exception as e:
-        print(f"Error loading data: {e}")
-        return None, None
-
+    # Create an instance of DataBase and DataAccessAdapter
+    database = DataBase()
+    adapter = DataAccessAdapter(database)
+    return adapter.load_data()
 
 
 
