@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 from datetime import datetime
 import csv
 import os
+import view
 
 
 close_soxs_values = []
@@ -401,7 +402,7 @@ if __name__ == "__main__":
         elif choice == "2":
             main()
         elif choice == "3":
-            ui.main()  # Call ui.py function to display the graph
+            view.main()  # Call ui.py function to display the graph
         elif choice == "4":
             # Account info display logic here
             pass
