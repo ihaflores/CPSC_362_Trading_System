@@ -8,7 +8,6 @@ import os
 
 close_soxs_values = []
 close_soxl_values = []
-
 class Target:
     def download_data(self):
         pass
@@ -206,31 +205,10 @@ def close_JSON_files(fs, fl):
         print(f"Error closing JSON files: {e}")
 
 def download_data():
-    # Set the tickers for the SOXS and SOXL stocks
-    soxs_ticker = yf.Ticker('SOXS') 
-    soxl_ticker = yf.Ticker('SOXL')
-
-    # Download historical data
-    soxs_hist = soxs_ticker.history(start="2021-01-01", end=None, interval="1d", actions = False)
-    soxl_hist = soxl_ticker.history(start="2021-01-01", end=None, interval="1d", actions = False)
-
-    # Save historical data to JSON files
-    soxs_data_dict = {str(date): data for date, data in soxs_hist.to_dict(orient="index").items()}
-    soxl_data_dict = {str(date): data for date, data in soxl_hist.to_dict(orient="index").items()}
-
-    # Set the file names for the JSON files
-    soxs_file_name = "soxs_historical_data.json"
-    soxl_file_name = "soxl_historical_data.json"
-
-    # Save the data to JSON files
-    with open(soxs_file_name, "w") as json_file:
-        json.dump(soxs_data_dict, json_file, indent=4)
-
-    with open(soxl_file_name, "w") as json_file:
-        json.dump(soxl_data_dict, json_file, indent=4)
-
-    print(f"Historical data for SOXS has been saved to {soxs_file_name}")
-    print(f"Historical data for SOXL has been saved to {soxl_file_name}")
+    # Create an instance of DataBase and DataAccessAdapter
+    database = DataBase()
+    adapter = DataAccessAdapter(database)
+    adapter.download_data()
 
 def get_date(data):
     # Return the date of the stock information
@@ -339,15 +317,10 @@ def execute_trades(trade, account):
     # account.print_account()
 
 def load_data():
-    try:
-        with open('soxs_historical_data.json') as fs, open('soxl_historical_data.json') as fl:
-            soxs_data = json.load(fs)
-            soxl_data = json.load(fl)
-        return soxs_data, soxl_data
-    except Exception as e:
-        print(f"Error loading data: {e}")
-        return None, None
-
+    # Create an instance of DataBase and DataAccessAdapter
+    database = DataBase()
+    adapter = DataAccessAdapter(database)
+    return adapter.load_data()
 
 
 
@@ -395,3 +368,44 @@ def start_trading_system(account, s_period, l_period):
     # Close JSON files
     close_JSON_files(fs, fl)
 
+def main():
+    # Download historical data
+    download_data()
+
+    # Create account for investor, using default 100,000 starting balance
+    account = Account()
+
+    # Set the short and long periods
+    s_period = 50
+    l_period = 200
+
+    # Ask for user input
+    # ui.get_user_input()
+
+    # Start the trading system
+    start_trading_system(account, s_period, l_period)
+
+    
+if __name__ == "__main__":
+    while True:
+        print("1. Download Data")
+        print("2. Run Trading System")
+        print("3. Input Date & Draw Graph")
+        print("4. Print Account Information")
+        print("5. Exit")
+
+        choice = input("Enter your choice: ")
+
+        if choice == "1":
+            download_data()
+        elif choice == "2":
+            main()
+        elif choice == "3":
+            ui.main()  # Call ui.py function to display the graph
+        elif choice == "4":
+            # Account info display logic here
+            pass
+        elif choice == "5":
+            break
+        else:
+            print("Invalid choice. Please try again.")
