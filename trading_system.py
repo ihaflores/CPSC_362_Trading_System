@@ -1,5 +1,11 @@
+import yfinance as yf
+import json
+import ui
+import matplotlib.pyplot as plt
+from datetime import datetime
 import csv
 import os
+
 
 close_soxs_values = []
 close_soxl_values = []
@@ -72,38 +78,6 @@ class Account:
         print(f"\tTotal account value: ${round(self.balance, 2) + int((self.soxs_shares * close_soxs_values[-1])) + int((self.soxl_shares * close_soxl_values[-1]))}")
         print(f"\t-------------------------------------")
 
-# Account interface class
-class AccountInterface(Account):    
-    def __init__(self, account):
-        self.account = account
-
-    def get_balance(self):
-        return self.account.get_balance()
-
-    def get_initial_balance(self):
-        return self.account.get_initial_balance()
-
-    def get_shares(self, stock):
-        return self.account.get_shares(stock)
-
-    def get_running_stock_balance(self, stock):
-        return self.account.get_running_stock_balance(stock)
-
-    def get_portfolio_value(self):
-        return self.account.get_portfolio_value()
-
-    def calc_account_return(self):
-        return self.account.calc_account_return()
-
-    def buy_stock(self, stock, no_of_shares, price):
-        self.account.buy_stock(stock, no_of_shares, price)
-
-    def sell_stock(self, stock, no_of_shares, price):
-        self.account.sell_stock(stock, no_of_shares, price)
-
-    def print_account(self):
-        self.account.print_account()
-
 # Writes a row to the output CSV file
 # Columns: Date, Stock, Trade, No. of Shares, Price, Gain/Loss, Balance
 def write_data_to_csv(data):
@@ -154,6 +128,49 @@ def write_trade_to_csv(trade, account, soxs, soxl):
     # Write the trade data to CSV file
     write_data_to_csv([date, symbol, buy_sell, no_of_shares, round(close_value, 2), gain_loss, todays_return, account.get_balance()])
 
+def open_JSON_files():
+    try:
+        fs = open('soxs_historical_data.json')
+        fl = open('soxl_historical_data.json')
+        return fs, fl
+    except Exception as e:
+        print(f"Error opening JSON files: {e}")
+        return None, None
+    
+def close_JSON_files(fs, fl):
+    try:
+        fs.close()
+        fl.close()
+    except Exception as e:
+        print(f"Error closing JSON files: {e}")
+
+def download_data():
+    # Set the tickers for the SOXS and SOXL stocks
+    soxs_ticker = yf.Ticker('SOXS') 
+    soxl_ticker = yf.Ticker('SOXL')
+
+    # Download historical data
+    soxs_hist = soxs_ticker.history(start="2021-01-01", end=None, interval="1d", actions = False)
+    soxl_hist = soxl_ticker.history(start="2021-01-01", end=None, interval="1d", actions = False)
+
+    # Save historical data to JSON files
+    soxs_data_dict = {str(date): data for date, data in soxs_hist.to_dict(orient="index").items()}
+    soxl_data_dict = {str(date): data for date, data in soxl_hist.to_dict(orient="index").items()}
+
+    # Set the file names for the JSON files
+    soxs_file_name = "soxs_historical_data.json"
+    soxl_file_name = "soxl_historical_data.json"
+
+    # Save the data to JSON files
+    with open(soxs_file_name, "w") as json_file:
+        json.dump(soxs_data_dict, json_file, indent=4)
+
+    with open(soxl_file_name, "w") as json_file:
+        json.dump(soxl_data_dict, json_file, indent=4)
+
+    print(f"Historical data for SOXS has been saved to {soxs_file_name}")
+    print(f"Historical data for SOXL has been saved to {soxl_file_name}")
+
 def get_date(data):
     # Return the date of the stock information
     return data[0]
@@ -199,6 +216,8 @@ def EvaluateSMA(soxs_sma, soxl_sma, account):
     no_soxl_shares = account.get_shares("SOXL")
 
     # Rename close values for readability
+    # prev_soxs_close = close_soxs_values[-2]
+    # prev_soxl_close = close_soxl_values[-2]
     soxs_close = close_soxs_values[-1]
     soxl_close = close_soxl_values[-1]
 
@@ -244,16 +263,39 @@ def execute_trades(trade, account):
     no_of_shares = trade[2]
     price = close_soxs_values[-1] if stock == "SOXS" else close_soxl_values[-1]
 
+    # # Print the account information
+    # print("\nAccount Information before trade:")
+    # account.print_account()
+
     # Execute the trade
     if trade_type == "Buy":
         account.buy_stock(stock, no_of_shares, price)
     elif trade_type == "Sell":
         account.sell_stock(stock, no_of_shares, price)
 
-def start_trading_system(account, s_period, l_period, data_access):
+    # # Print the account information
+    # print("\nAccount Information after trade:")
+    # account.print_account()
+
+def load_data():
+    try:
+        with open('soxs_historical_data.json') as fs, open('soxl_historical_data.json') as fl:
+            soxs_data = json.load(fs)
+            soxl_data = json.load(fl)
+        return soxs_data, soxl_data
+    except Exception as e:
+        print(f"Error loading data: {e}")
+        return None, None
+
+
+
+
+def start_trading_system(account, s_period, l_period):
+    # Open JSON files
+    fs, fl = open_JSON_files()
 
     # Read JSON files
-    soxs_data, soxl_data = data_access.load_data()
+    soxs_data, soxl_data = load_data()
 
     # Initialize the CSV file
     initialize_csv_file()
@@ -288,3 +330,48 @@ def start_trading_system(account, s_period, l_period, data_access):
 
     # Write final summary to CSV
     write_final_summary_to_csv(account)
+
+    # Close JSON files
+    close_JSON_files(fs, fl)
+
+def main():
+    # Download historical data
+    download_data()
+
+    # Create account for investor, using default 100,000 starting balance
+    account = Account()
+
+    # Set the short and long periods
+    s_period = 50
+    l_period = 200
+
+    # Ask for user input
+    # ui.get_user_input()
+
+    # Start the trading system
+    start_trading_system(account, s_period, l_period)
+
+    
+if __name__ == "__main__":
+    while True:
+        print("1. Download Data")
+        print("2. Run Trading System")
+        print("3. Input Date & Draw Graph")
+        print("4. Print Account Information")
+        print("5. Exit")
+
+        choice = input("Enter your choice: ")
+
+        if choice == "1":
+            download_data()
+        elif choice == "2":
+            main()
+        elif choice == "3":
+            ui.main()  # Call ui.py function to display the graph
+        elif choice == "4":
+            # Account info display logic here
+            pass
+        elif choice == "5":
+            break
+        else:
+            print("Invalid choice. Please try again.")
