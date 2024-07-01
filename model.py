@@ -388,5 +388,3 @@ def main():
 
     # Start the trading system
     start_trading_system(account, s_period, l_period)
-
-  

@@ -40,14 +40,18 @@ if __name__ == "__main__":
             view.main()  # Call ui.py function to display the graph
         elif choice == "4":
             stock = Stock()  # Create a subject
-            
-            display = StockDisplay()  # Create an observer
+            stock_display = StockDisplay()  # Create an observer
 
-            stock._obj_container.append(display)  # Subscribe observer to subject
+            stock.register(stock_display)  # Register observer to subject
 
-            stock.simulate_price_change()  # Simulate price changes
+            # Simulate updating the price and notifying observers with random prices
+            for _ in range(50):  # You can adjust the number of iterations as needed
+                # Generate a random price (example using random.randint())
+                random_price = random.randint(1, 100)  # Example: Generates a random integer between 1 and 100
+                stock.ask_price = random_price
+                time.sleep(0.1)  # Adjust the delay time as needed (e.g., 0.1 seconds)
 
-            stock._obj_container.remove(display)  #
+            stock.unregister(stock_display)  # Unregister observer from subject
         elif choice == "5":
             break
         else:
