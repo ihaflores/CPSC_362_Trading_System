@@ -35,7 +35,7 @@ class ObservableImpl(IObservable):
         for observer in self._obj_container.keys():
             observer.notify(data)
 
-# Implement Stock class as subject
+# Stock publisher implements observer pattern
 class Stock(ObservableImpl):
     def __init__(self):
         super().__init__()
@@ -50,7 +50,7 @@ class Stock(ObservableImpl):
         self._ask_price = value
         self.notify_observers(self._ask_price)
 
-# Implement observer (subscriber) class
+# StockDisplay is subscriber in observer pattern
 class StockDisplay(IObserver):
     def notify(self, data: object):
         print(f"Current ask price: {data}")
