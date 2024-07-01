@@ -355,11 +355,11 @@ if __name__ == "__main__":
             stock.register(stock_display)  # Register observer to subject
 
             # Simulate updating the price and notifying observers with random prices
-            for _ in range(50):  # You can adjust the number of iterations as needed
-                # Generate a random price (example using random.randint())
-                random_price = random.randint(1, 100)  # Example: Generates a random integer between 1 and 100
+            for _ in range(50):  
+                # Generate a random price 
+                random_price = random.randint(1, 50)  # Example: Generates a random integer between 1 and 50
                 stock.ask_price = random_price
-                time.sleep(0.1)  # Adjust the delay time as needed (e.g., 0.1 seconds)
+                time.sleep(0.1)  
 
             stock.unregister(stock_display)  # Unregister observer from subject
         elif choice == "5":
