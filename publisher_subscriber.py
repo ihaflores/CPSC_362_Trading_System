@@ -1,3 +1,4 @@
+import random
 from abc import ABC, abstractmethod
 
 # Observer Interface
@@ -6,33 +7,19 @@ class IObserver(ABC):
     def notify(self, data: object):
         pass
 
-# Observable interface
+# Observable interface 
 class IObservable(ABC):
     @abstractmethod
-    def register(self, observer: IObserver):
-        pass
-    
-    @abstractmethod
-    def unregister(self, observer: IObserver):
-        pass
-    
-    @abstractmethod
     def notify_observers(self, data: object):
         pass
 
-# Implement observable helper class
+# Interface helper classegister)
 class ObservableImpl(IObservable):
     def __init__(self):
-        self._obj_container = {}
-
-    def register(self, observer: IObserver):
-        self._obj_container[observer] = None
-
-    def unregister(self, observer: IObserver):
-        del self._obj_container[observer]
+        self._obj_container = []
 
     def notify_observers(self, data: object):
-        for observer in self._obj_container.keys():
+        for observer in self._obj_container:
             observer.notify(data)
 
 # Stock publisher implements observer pattern
@@ -49,6 +36,11 @@ class Stock(ObservableImpl):
     def ask_price(self, value):
         self._ask_price = value
         self.notify_observers(self._ask_price)
+
+    def simulate_price_change(self):
+        for _ in range(10):  # Simulate 10 price changes
+            random_price = random.uniform(50, 150)  # Generate random price
+            self.ask_price = random_price  # Update ask price
 
 # StockDisplay is subscriber in observer pattern
 class StockDisplay(IObserver):
