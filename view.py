@@ -2,10 +2,9 @@ import datetime
 import matplotlib.pyplot as plt
 import yfinance as yf
 import json
+import random
 import csv
 import os
-from abc import ABC, abstractmethod
-
 from abc import ABC, abstractmethod
 
 # Observer Interface
@@ -14,36 +13,22 @@ class IObserver(ABC):
     def notify(self, data: object):
         pass
 
-# Observable interface
+# Observable interface 
 class IObservable(ABC):
     @abstractmethod
-    def register(self, observer: IObserver):
-        pass
-    
-    @abstractmethod
-    def unregister(self, observer: IObserver):
-        pass
-    
-    @abstractmethod
     def notify_observers(self, data: object):
         pass
 
-# Implement observable helper class
+# Interface helper classegister)
 class ObservableImpl(IObservable):
     def __init__(self):
-        self._obj_container = {}
-
-    def register(self, observer: IObserver):
-        self._obj_container[observer] = None
-
-    def unregister(self, observer: IObserver):
-        del self._obj_container[observer]
+        self._obj_container = []
 
     def notify_observers(self, data: object):
-        for observer in self._obj_container.keys():
+        for observer in self._obj_container:
             observer.notify(data)
 
-# Implement Stock class as subject
+# Stock publisher implements observer pattern
 class Stock(ObservableImpl):
     def __init__(self):
         super().__init__()
@@ -58,34 +43,15 @@ class Stock(ObservableImpl):
         self._ask_price = value
         self.notify_observers(self._ask_price)
 
-# Implement observer (subscriber) class
+    def simulate_price_change(self):
+        for _ in range(10):  # Simulate 10 price changes
+            random_price = random.uniform(50, 150)  # Generate random price
+            self.ask_price = random_price  # Update ask price
+
+# StockDisplay is subscriber in observer pattern
 class StockDisplay(IObserver):
     def notify(self, data: object):
         print(f"Current ask price: {data}")
-
-class Publisher:
-    def __init__(self):
-        self.subscribers = []
-        self.data = None
-
-    def subscribe(self, subscriber):
-        self.subscribers.append(subscriber)
-
-    def unsubscribe(self, subscriber):
-        self.subscribers.remove(subscriber)
-
-    def notify(self):
-        for subscriber in self.subscribers:
-            subscriber.update(self.data)
-
-    def update_data(self, new_data):
-        self.data = new_data
-        self.notify()
-
-class Subscriber(ABC):
-    @abstractmethod
-    def update(self, data):
-        pass
 
 class GraphSubscriber(Subscriber):
     def __init__(self, symbol, start_date, end_date):
