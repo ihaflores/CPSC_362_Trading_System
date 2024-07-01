@@ -13,7 +13,7 @@ class IObservable(ABC):
     def notify_observers(self, data: object):
         pass
 
-# Interface helper classegister)
+# Interface helper class
 class ObservableImpl(IObservable):
     def __init__(self):
         self._obj_container = []
@@ -46,3 +46,13 @@ class Stock(ObservableImpl):
 class StockDisplay(IObserver):
     def notify(self, data: object):
         print(f"Current ask price: {data}")
+
+def main():
+    stock = Stock()  # Create a subject
+    display = StockDisplay()  # Create an observer
+
+    stock._obj_container.append(display)  # Subscribe observer to subject
+
+    stock.simulate_price_change()  # Simulate price changes
+
+    stock._obj_container.remove(display)  # Unsubscribe observer from subject

@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 from datetime import datetime
 import csv
 import os
+import publisher_subscriber
 from database import DataBase, DataAccessAdapter
 from publisher_subscriber import Stock, StockDisplay
 import time
@@ -349,15 +350,7 @@ if __name__ == "__main__":
         elif choice == "3":
             ui.main()  # Call ui.py function to display the graph
         elif choice == "4":
-            stock = Stock()  # Create a subject
-            
-            display = StockDisplay()  # Create an observer
-
-            stock._obj_container.append(display)  # Subscribe observer to subject
-
-            stock.simulate_price_change()  # Simulate price changes
-
-            stock._obj_container.remove(display)  #
+            publisher_subscriber.main()
         elif choice == "5":
             break
         else:
