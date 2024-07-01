@@ -6,6 +6,9 @@ from datetime import datetime
 import csv
 import os
 from database import DataBase, DataAccessAdapter
+from publisher_subscriber import Stock, StockDisplay
+import time
+import random
 
 
 close_soxs_values = []
@@ -327,12 +330,14 @@ def main():
     start_trading_system(account, s_period, l_period)
 
     
+
+    
 if __name__ == "__main__":
     while True:
         print("1. Download Data")
         print("2. Run Trading System")
         print("3. Input Date & Draw Graph")
-        print("4. Print Account Information")
+        print("4. Display Current Stock Price")
         print("5. Exit")
 
         choice = input("Enter your choice: ")
@@ -344,8 +349,19 @@ if __name__ == "__main__":
         elif choice == "3":
             ui.main()  # Call ui.py function to display the graph
         elif choice == "4":
-            # Account info display logic here
-            pass
+            stock = Stock()  # Create a subject
+            stock_display = StockDisplay()  # Create an observer
+
+            stock.register(stock_display)  # Register observer to subject
+
+            # Simulate updating the price and notifying observers with random prices
+            for _ in range(50):  # You can adjust the number of iterations as needed
+                # Generate a random price (example using random.randint())
+                random_price = random.randint(1, 100)  # Example: Generates a random integer between 1 and 100
+                stock.ask_price = random_price
+                time.sleep(0.1)  # Adjust the delay time as needed (e.g., 0.1 seconds)
+
+            stock.unregister(stock_display)  # Unregister observer from subject
         elif choice == "5":
             break
         else:
